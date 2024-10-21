@@ -1,0 +1,30 @@
+{
+	"name": "@kristall/http",
+	"version": "1.1.0",
+	"description": "HTTP methods for supporting NextJS Server Actions of Kristall",
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"exports": {
+		".": "./dist/modules/http/index.js",
+		"./interfaces": "./dist/modules/http/interfaces/index.d.ts"
+	},
+	"typesVersions": {
+		"*": {
+			"http": ["./dist/modules/http/index.d.ts"],
+			"interfaces": ["./dist/modules/http/interfaces/index.d.ts"]
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.6.3",
+		"@types/node": "20.12.7",
+		"typescript": "5.4.5"
+	},
+	"peerDependencies": {
+		"next": "^14.0.0"
+	},
+	"scripts": {
+		"build": "tsc --build",
+		"dev": "tsc --watch"
+	}
+}
