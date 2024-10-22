@@ -2,9 +2,9 @@
 
 type Url = `/${string}`;
 
-import { environment } from "@kristall/core/constants";
+import { environment } from "@kristall/http/constants";
 
-import { getCookie, isDev } from "@kristall/core/utils";
+import { getCookie, isDev } from "@kristall/http/utils";
 import type { ServerResponse } from "../interfaces";
 
 const createHeaders = async (): Promise<HeadersInit> => {
