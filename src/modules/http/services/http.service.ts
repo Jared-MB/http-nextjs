@@ -18,6 +18,7 @@ const createHeaders = async (): Promise<HeadersInit> => {
 
 interface FetchOptions {
 	tags: string[];
+	cache: RequestCache;
 	/**
 	 * @deprecated
 	 */
@@ -28,6 +29,7 @@ export const GET = async <T>(
 	url: Url,
 	options: FetchOptions = {
 		tags: [],
+		cache: "force-cache",
 	},
 ): Promise<ServerResponse<T>> => {
 	const { tags, toJSON } = options;
@@ -48,6 +50,7 @@ export const GET = async <T>(
 		next: {
 			tags: options?.tags,
 		},
+		cache: options.cache,
 	});
 	if (!response.ok) {
 		isDev && console.error("❌ Error fetching data at: ", url);
