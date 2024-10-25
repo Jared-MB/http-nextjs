@@ -74,9 +74,10 @@ export const POST = async <T, R = unknown>(
 	});
 	if (!response.ok) {
 		const error = await response.json();
+		isDev && console.error("❌ Error pushing data at: ", url);
 		return {
 			message: error.message,
-			status: error.status,
+			status: error.statusCode,
 			data: null as R,
 		};
 	}
