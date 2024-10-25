@@ -18,7 +18,7 @@ const createHeaders = async (): Promise<HeadersInit> => {
 
 interface FetchOptions {
 	tags: string[];
-	cache: RequestCache;
+	cache?: RequestCache;
 	/**
 	 * @deprecated
 	 */
