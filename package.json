@@ -30,13 +30,17 @@
 	"devDependencies": {
 		"@biomejs/biome": "1.6.3",
 		"@types/node": "20.12.7",
-		"typescript": "5.4.5"
+		"typescript": "5.4.5",
+		"vite-tsconfig-paths": "^4.3.2",
+		"vitest": "^2.1.4"
 	},
 	"peerDependencies": {
 		"next": "^14.0.0"
 	},
 	"scripts": {
 		"build": "tsc --build",
-		"dev": "tsc --watch"
+		"dev": "tsc --watch",
+		"test": "vitest",
+		"coverage": "vitest run --coverage"
 	}
 }

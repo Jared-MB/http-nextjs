@@ -18,6 +18,7 @@ const createHeaders = async (): Promise<HeadersInit> => {
 
 interface FetchOptions {
 	tags: string[];
+	safe?: boolean;
 	cache?: RequestCache;
 	/**
 	 * @deprecated
@@ -29,6 +30,7 @@ export const GET = async <T>(
 	url: Url,
 	options: FetchOptions = {
 		tags: [],
+		safe: true,
 		cache: "force-cache",
 	},
 ): Promise<ServerResponse<T>> => {
@@ -54,7 +56,15 @@ export const GET = async <T>(
 	});
 	if (!response.ok) {
 		isDev && console.error("❌ Error fetching data at: ", url);
-		throw new Error(response.statusText);
+		if (!options.safe) {
+			throw new Error(response.statusText);
+		}
+		const error = await response.json();
+		return {
+			message: error.message,
+			status: error.statusCode ?? error.status,
+			data: null as T,
+		};
 	}
 	try {
 		return response.json();
@@ -72,21 +82,31 @@ export const POST = async <T, R = unknown>(
 		headers: await createHeaders(),
 		body: JSON.stringify(body),
 	});
+	if (!body || Object.keys(body).length === 0) {
+		isDev && console.warn("⚠️ No data provided for POST request: ", url);
+	}
 	if (!response.ok) {
 		const error = await response.json();
 		isDev && console.error("❌ Error pushing data at: ", url);
 		return {
 			message: error.message,
-			status: error.statusCode,
+			status: error.statusCode ?? error.status,
 			data: null as R,
 		};
 	}
-	return await response.json();
+	try {
+		return response.json();
+	} catch (error) {
+		return response.text() as any;
+	}
 };
 
 export const PUT = async <T, R = unknown>(
 	url: Url,
 	body: T,
+	{ safe = true } = {
+		safe: true,
+	},
 ): Promise<ServerResponse<R>> => {
 	const response = await fetch(`${environment.SERVER_API}${url}`, {
 		method: "PUT",
@@ -94,14 +114,27 @@ export const PUT = async <T, R = unknown>(
 		body: JSON.stringify(body),
 	});
 	if (!response.ok) {
-		throw new Error(response.statusText);
+		if (!safe) throw new Error(response.statusText);
+		const error = await response.json();
+		return {
+			message: error.message,
+			status: error.statusCode ?? error.status,
+			data: null as R,
+		};
 	}
-	return await response.json();
+	try {
+		return await response.json();
+	} catch (error) {
+		return response.text() as any;
+	}
 };
 
 export const PATCH = async <T, R = unknown>(
 	url: Url,
 	body: T,
+	{ safe = true } = {
+		safe: true,
+	},
 ): Promise<ServerResponse<R>> => {
 	const response = await fetch(`${environment.SERVER_API}${url}`, {
 		method: "PATCH",
@@ -109,18 +142,41 @@ export const PATCH = async <T, R = unknown>(
 		body: JSON.stringify(body),
 	});
 	if (!response.ok) {
-		throw new Error(response.statusText);
+		if (!safe) throw new Error(response.statusText);
+		const error = await response.json();
+		return {
+			message: error.message,
+			status: error.statusCode ?? error.status,
+			data: null as R,
+		};
 	}
-	return await response.json();
+	try {
+		return await response.json();
+	} catch (error) {
+		return response.text() as any;
+	}
 };
 
-export const DELETE = async (url: Url): Promise<ServerResponse<null>> => {
+export const DELETE = async (
+	url: Url,
+	{ safe = true } = {
+		safe: true,
+	},
+): Promise<ServerResponse<null>> => {
 	const response = await fetch(`${environment.SERVER_API}${url}`, {
 		method: "DELETE",
 		headers: await createHeaders(),
 	});
 	if (!response.ok) {
-		throw new Error(response.statusText);
+		if (!safe) {
+			throw new Error(response.statusText);
+		}
+		const error = await response.json();
+		return {
+			message: error.message,
+			status: error.statusCode ?? error.status,
+			data: null as null,
+		};
 	}
 	return await response.json();
 };
