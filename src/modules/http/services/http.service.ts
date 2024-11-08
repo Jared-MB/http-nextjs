@@ -59,12 +59,16 @@ export const GET = async <T>(
 		if (!options.safe) {
 			throw new Error(response.statusText);
 		}
-		const error = await response.json();
-		return {
-			message: error.message,
-			status: error.statusCode ?? error.status,
-			data: null as T,
-		};
+		try {
+			const error = await response.json();
+			return {
+				message: error.message,
+				status: error.statusCode ?? error.status,
+				data: null as T,
+			};
+		} catch (error) {
+			return response.text() as any;
+		}
 	}
 	try {
 		return response.json();

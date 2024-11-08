@@ -48,6 +48,18 @@ vi.spyOn(global, "fetch").mockImplementation((url, options) => {
 		} as Response);
 	}
 
+	if (url.toString().includes("/text-error")) {
+		return Promise.resolve({
+			ok: false,
+			text: () =>
+				Promise.resolve({
+					data: null,
+					message: "Internal Server Error",
+					status: 500,
+				}),
+		} as unknown as Response);
+	}
+
 	if (url.toString().includes("/text")) {
 		return Promise.resolve({
 			ok: true,
@@ -87,6 +99,14 @@ describe("GET", () => {
 		expect(data).toBe("text");
 		expect(message).toBe("Success");
 		expect(status).toBe(200);
+	});
+
+	test("Should return null if response is not JSON an something goes wrong on server", async () => {
+		const { data, message, status } = await GET<string>("/text-error");
+
+		expect(data).toBeNull();
+		expect(message).toBe("Internal Server Error");
+		expect(status).toBe(500);
 	});
 
 	test("If safe is false, should throw an error", async () => {
