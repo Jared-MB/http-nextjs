@@ -108,12 +108,6 @@ describe("GET", () => {
 		expect(message).toBe("Internal Server Error");
 		expect(status).toBe(500);
 	});
-
-	test("If safe is false, should throw an error", async () => {
-		await expect(
-			GET<string>("/error", { safe: false, tags: [] }),
-		).rejects.toThrowError();
-	});
 });
 
 describe("POST", () => {

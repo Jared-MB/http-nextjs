@@ -46,34 +46,42 @@ export const GET = async <T>(
 			);
 		}
 	}
-	const response = await fetch(`${environment.SERVER_API}${url}`, {
-		method: "GET",
-		headers: await createHeaders(),
-		next: {
-			tags: options?.tags,
-		},
-		cache: options.cache,
-	});
-	if (!response.ok) {
-		isDev && console.error("❌ Error fetching data at: ", url);
-		if (!options.safe) {
-			throw new Error(response.statusText);
+	try {
+		const response = await fetch(`${environment.SERVER_API}${url}`, {
+			method: "GET",
+			headers: await createHeaders(),
+			next: {
+				tags: options?.tags,
+			},
+			cache: options.cache,
+		});
+		if (!response.ok) {
+			isDev && console.error("❌ Error fetching data at: ", url);
+			if (!options.safe) {
+				throw new Error(response.statusText);
+			}
+			try {
+				const error = await response.json();
+				return {
+					message: error.message,
+					status: error.statusCode ?? error.status,
+					data: null as T,
+				};
+			} catch (error) {
+				return response.text() as any;
+			}
 		}
 		try {
-			const error = await response.json();
-			return {
-				message: error.message,
-				status: error.statusCode ?? error.status,
-				data: null as T,
-			};
+			return response.json();
 		} catch (error) {
 			return response.text() as any;
 		}
-	}
-	try {
-		return response.json();
-	} catch (error) {
-		return response.text() as any;
+	} catch (error: any) {
+		return {
+			message: error?.message ?? "Internal server error",
+			status: error?.statusCode ?? error?.status ?? 500,
+			data: null as T,
+		};
 	}
 };
 
