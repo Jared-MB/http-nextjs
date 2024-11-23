@@ -89,27 +89,35 @@ export const POST = async <T, R = unknown>(
 	url: Url,
 	body: T,
 ): Promise<ServerResponse<R>> => {
-	const response = await fetch(`${environment.SERVER_API}${url}`, {
-		method: "POST",
-		headers: await createHeaders(),
-		body: JSON.stringify(body),
-	});
-	if (!body || Object.keys(body).length === 0) {
-		isDev && console.warn("⚠️ No data provided for POST request: ", url);
-	}
-	if (!response.ok) {
-		const error = await response.json();
-		isDev && console.error("❌ Error pushing data at: ", url);
+	try {
+		const response = await fetch(`${environment.SERVER_API}${url}`, {
+			method: "POST",
+			headers: await createHeaders(),
+			body: JSON.stringify(body),
+		});
+		if (!body || Object.keys(body).length === 0) {
+			isDev && console.warn("⚠️ No data provided for POST request: ", url);
+		}
+		if (!response.ok) {
+			const error = await response.json();
+			isDev && console.error("❌ Error pushing data at: ", url);
+			return {
+				message: error.message,
+				status: error.statusCode ?? error.status,
+				data: null as R,
+			};
+		}
+		try {
+			return response.json();
+		} catch (error) {
+			return response.text() as any;
+		}
+	} catch (error: any) {
 		return {
-			message: error.message,
-			status: error.statusCode ?? error.status,
+			message: error?.message ?? "Internal server error",
+			status: error?.statusCode ?? error?.status ?? 500,
 			data: null as R,
 		};
-	}
-	try {
-		return response.json();
-	} catch (error) {
-		return response.text() as any;
 	}
 };
 
