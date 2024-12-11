@@ -13,18 +13,10 @@
 	},
 	"typesVersions": {
 		"*": {
-			"http": [
-				"./dist/modules/http/index.d.ts"
-			],
-			"interfaces": [
-				"./dist/modules/http/interfaces/index.d.ts"
-			],
-			"constants": [
-				"./dist/constants/index.d.ts"
-			],
-			"utils": [
-				"./dist/utils/index.d.ts"
-			]
+			"http": ["./dist/modules/http/index.d.ts"],
+			"interfaces": ["./dist/modules/http/interfaces/index.d.ts"],
+			"constants": ["./dist/constants/index.d.ts"],
+			"utils": ["./dist/utils/index.d.ts"]
 		}
 	},
 	"devDependencies": {
@@ -38,7 +30,7 @@
 		"next": "^14.0.0"
 	},
 	"scripts": {
-		"build": "tsc --build",
+		"build": "tsc",
 		"dev": "tsc --watch",
 		"test": "vitest",
 		"coverage": "vitest run --coverage"
