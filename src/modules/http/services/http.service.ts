@@ -2,7 +2,7 @@
 
 type Url = `/${string}`;
 
-import { environment } from "@kristall/http/constants";
+import { SERVER_API } from "@kristall/http/constants";
 
 import { getCookie, isDev } from "@kristall/http/utils";
 import type { ServerResponse } from "../interfaces";
@@ -47,7 +47,7 @@ export const GET = async <T>(
 		}
 	}
 	try {
-		const response = await fetch(`${environment.SERVER_API}${url}`, {
+		const response = await fetch(`${SERVER_API}${url}`, {
 			method: "GET",
 			headers: await createHeaders(),
 			next: {
@@ -90,7 +90,7 @@ export const POST = async <T, R = unknown>(
 	body: T,
 ): Promise<ServerResponse<R>> => {
 	try {
-		const response = await fetch(`${environment.SERVER_API}${url}`, {
+		const response = await fetch(`${SERVER_API}${url}`, {
 			method: "POST",
 			headers: await createHeaders(),
 			body: JSON.stringify(body),
@@ -128,7 +128,7 @@ export const PUT = async <T, R = unknown>(
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
-	const response = await fetch(`${environment.SERVER_API}${url}`, {
+	const response = await fetch(`${SERVER_API}${url}`, {
 		method: "PUT",
 		headers: await createHeaders(),
 		body: JSON.stringify(body),
@@ -156,7 +156,7 @@ export const PATCH = async <T, R = unknown>(
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
-	const response = await fetch(`${environment.SERVER_API}${url}`, {
+	const response = await fetch(`${SERVER_API}${url}`, {
 		method: "PATCH",
 		headers: await createHeaders(),
 		body: JSON.stringify(body),
@@ -183,7 +183,7 @@ export const DELETE = async (
 		safe: true,
 	},
 ): Promise<ServerResponse<null>> => {
-	const response = await fetch(`${environment.SERVER_API}${url}`, {
+	const response = await fetch(`${SERVER_API}${url}`, {
 		method: "DELETE",
 		headers: await createHeaders(),
 	});

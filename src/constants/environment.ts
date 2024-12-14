@@ -1,3 +1,1 @@
-export const environment = {
-	SERVER_API: process.env.SERVER_API,
-};
+export const { SERVER_API = "http://localhost:3001" } = process.env;
