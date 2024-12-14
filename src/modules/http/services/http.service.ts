@@ -53,7 +53,7 @@ export const GET = async <T>(
 			next: {
 				tags: options?.tags,
 			},
-			cache: options.cache,
+			cache: options?.cache ?? "force-cache",
 		});
 		if (!response.ok) {
 			isDev && console.error("❌ Error fetching data at: ", url);
