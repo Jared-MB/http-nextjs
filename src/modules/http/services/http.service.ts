@@ -18,20 +18,34 @@ const createHeaders = async (): Promise<HeadersInit> => {
 
 interface FetchOptions {
 	tags: string[];
-	safe?: boolean;
 	cache?: RequestCache;
+	revalidate?: false | 0 | number | undefined;
 	/**
 	 * @deprecated
 	 */
 	toJSON?: boolean;
+	/**
+	 * @deprecated
+	 */
+	safe?: boolean;
 }
 
+/**
+ * GET request handler
+ *
+ * Cache is set by {@link https://nextjs.org/docs/app/building-your-application/caching#fetch|NextJS default cache} value `no-store`
+ *
+ * @param url URL to fetch
+
+ * @param options FetchOptions
+ */
 export const GET = async <T>(
 	url: Url,
 	options: FetchOptions = {
 		tags: [],
 		safe: true,
-		cache: "force-cache",
+		cache: undefined,
+		revalidate: undefined,
 	},
 ): Promise<ServerResponse<T>> => {
 	const { tags, toJSON } = options;
@@ -45,6 +59,9 @@ export const GET = async <T>(
 				url,
 			);
 		}
+		if ("safe" in options) {
+			console.warn("⚠️ safe is deprecated, its not longer necessary on: ", url);
+		}
 	}
 	try {
 		const response = await fetch(`${SERVER_API}${url}`, {
@@ -52,14 +69,12 @@ export const GET = async <T>(
 			headers: await createHeaders(),
 			next: {
 				tags: options?.tags,
+				revalidate: options?.revalidate,
 			},
-			cache: options?.cache ?? "force-cache",
+			cache: options?.cache,
 		});
 		if (!response.ok) {
 			isDev && console.error("❌ Error fetching data at: ", url);
-			if (!options.safe) {
-				throw new Error(response.statusText);
-			}
 			try {
 				const error = await response.json();
 				return {
