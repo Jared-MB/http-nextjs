@@ -1,6 +1,6 @@
 {
 	"name": "@kristall/http",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"description": "HTTP methods for supporting NextJS Server Actions of Kristall",
 	"keywords": [],
 	"author": "",

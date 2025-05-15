@@ -4,24 +4,21 @@ type Url = `/${string}`;
 
 import { SERVER_API } from "@kristall/http/constants";
 
-import {
-	__DEFAULT_CONFIG__,
-	getCookie,
-	isDev,
-	loadConfig,
-} from "@kristall/http/utils";
+import { getCookie, isDev, loadConfig } from "@kristall/http/utils";
 
 import type { KristallConfig, ServerResponse } from "../interfaces";
 
-let config: KristallConfig = {
-	...__DEFAULT_CONFIG__,
-};
+let config: KristallConfig | null;
 
 (async () => {
 	config = await loadConfig();
 })();
 
 const createHeaders = async (): Promise<HeadersInit> => {
+	if (!config) {
+		config = await loadConfig();
+	}
+
 	const __SESSION_COOKIE__ = config.sessionCookieName as string;
 
 	const access_token = await getCookie(__SESSION_COOKIE__);
