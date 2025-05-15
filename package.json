@@ -34,5 +34,9 @@
 		"dev": "tsc --watch",
 		"test": "vitest",
 		"coverage": "vitest run --coverage"
+	},
+	"dependencies": {
+		"cosmiconfig": "9.0.0",
+		"cosmiconfig-typescript-loader": "6.1.0"
 	}
 }

@@ -4,11 +4,27 @@ type Url = `/${string}`;
 
 import { SERVER_API } from "@kristall/http/constants";
 
-import { getCookie, isDev } from "@kristall/http/utils";
-import type { ServerResponse } from "../interfaces";
+import {
+	__DEFAULT_CONFIG__,
+	getCookie,
+	isDev,
+	loadConfig,
+} from "@kristall/http/utils";
+
+import type { KristallConfig, ServerResponse } from "../interfaces";
+
+let config: KristallConfig = {
+	...__DEFAULT_CONFIG__,
+};
+
+(async () => {
+	config = await loadConfig();
+})();
 
 const createHeaders = async (): Promise<HeadersInit> => {
-	const access_token = await getCookie("session");
+	const __SESSION_COOKIE__ = config.sessionCookieName as string;
+
+	const access_token = await getCookie(__SESSION_COOKIE__);
 	return {
 		Authorization: `Bearer ${access_token}`,
 		Cookie: `session=${access_token}`,
