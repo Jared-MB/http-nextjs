@@ -8,20 +8,28 @@ import { getCookie, isDev, loadConfig } from "@kristall/http/utils";
 
 import type { KristallConfig, ServerResponse } from "../interfaces";
 
-let config: KristallConfig | null;
+let config: KristallConfig | null = null;
 
 (async () => {
 	config = await loadConfig();
 })();
 
-const createHeaders = async (): Promise<HeadersInit> => {
+const createHeaders = async (isAuth?: boolean): Promise<HeadersInit> => {
 	if (!config) {
 		config = await loadConfig();
 	}
 
 	const __SESSION_COOKIE__ = config.sessionCookieName as string;
+	const __DEFAULT_AUTH_REQUESTS__ = config.defaultAuthRequests as boolean;
+
 
 	const access_token = await getCookie(__SESSION_COOKIE__);
+	console.log(__SESSION_COOKIE__);
+
+	if ((isAuth || __DEFAULT_AUTH_REQUESTS__) && !access_token) {
+		throw new Error("No access token found");
+	}
+
 	return {
 		Authorization: `Bearer ${access_token}`,
 		Cookie: `session=${access_token}`,
@@ -33,6 +41,7 @@ interface FetchOptions {
 	tags: string[];
 	cache?: RequestCache;
 	revalidate?: false | 0 | number | undefined;
+	auth?: boolean
 	/**
 	 * @deprecated
 	 */
@@ -55,6 +64,7 @@ interface FetchOptions {
 export const GET = async <T>(
 	url: Url,
 	options: FetchOptions = {
+		auth: undefined,
 		tags: [],
 		safe: true,
 		cache: undefined,
@@ -62,6 +72,7 @@ export const GET = async <T>(
 	},
 ): Promise<ServerResponse<T>> => {
 	const { tags, toJSON } = options;
+
 	if (isDev) {
 		if (tags.length === 0) {
 			console.warn("⚠️ No tags provided for GET request: ", url);
@@ -76,10 +87,13 @@ export const GET = async <T>(
 			console.warn("⚠️ safe is deprecated, its not longer necessary on: ", url);
 		}
 	}
+
 	try {
+		const headers = await createHeaders(options?.auth);
+
 		const response = await fetch(`${SERVER_API}${url}`, {
 			method: "GET",
-			headers: await createHeaders(),
+			headers,
 			next: {
 				tags: options?.tags,
 				revalidate: options?.revalidate,
@@ -156,24 +170,33 @@ export const PUT = async <T, R = unknown>(
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
-	const response = await fetch(`${SERVER_API}${url}`, {
-		method: "PUT",
-		headers: await createHeaders(),
-		body: JSON.stringify(body),
-	});
-	if (!response.ok) {
-		if (!safe) throw new Error(response.statusText);
-		const error = await response.json();
-		return {
-			message: error.message,
-			status: error.statusCode ?? error.status,
-			data: null as R,
-		};
-	}
 	try {
-		return await response.json();
-	} catch (error) {
-		return response.text() as any;
+		const response = await fetch(`${SERVER_API}${url}`, {
+			method: "PUT",
+			headers: await createHeaders(),
+			body: JSON.stringify(body),
+		});
+		if (!response.ok) {
+			if (!safe) throw new Error(response.statusText);
+			const error = await response.json();
+			return {
+				message: error.message,
+				status: error.statusCode ?? error.status,
+				data: null as R,
+			};
+		}
+		try {
+			return await response.json();
+		} catch (error) {
+			return response.text() as any;
+		}
+	}
+	catch (error: any) {
+		return {
+			message: error?.message ?? "Internal server error",
+			status: error?.statusCode ?? error?.status ?? 500,
+			data: null as R,
+		}
 	}
 };
 
@@ -184,24 +207,33 @@ export const PATCH = async <T, R = unknown>(
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
-	const response = await fetch(`${SERVER_API}${url}`, {
-		method: "PATCH",
-		headers: await createHeaders(),
-		body: JSON.stringify(body),
-	});
-	if (!response.ok) {
-		if (!safe) throw new Error(response.statusText);
-		const error = await response.json();
-		return {
-			message: error.message,
-			status: error.statusCode ?? error.status,
-			data: null as R,
-		};
-	}
 	try {
-		return await response.json();
-	} catch (error) {
-		return response.text() as any;
+		const response = await fetch(`${SERVER_API}${url}`, {
+			method: "PATCH",
+			headers: await createHeaders(),
+			body: JSON.stringify(body),
+		});
+		if (!response.ok) {
+			if (!safe) throw new Error(response.statusText);
+			const error = await response.json();
+			return {
+				message: error.message,
+				status: error.statusCode ?? error.status,
+				data: null as R,
+			};
+		}
+		try {
+			return await response.json();
+		} catch (error) {
+			return response.text() as any;
+		}
+	}
+	catch (error: any) {
+		return {
+			message: error?.message ?? "Internal server error",
+			status: error?.statusCode ?? error?.status ?? 500,
+			data: null as R,
+		}
 	}
 };
 
@@ -211,20 +243,29 @@ export const DELETE = async (
 		safe: true,
 	},
 ): Promise<ServerResponse<null>> => {
-	const response = await fetch(`${SERVER_API}${url}`, {
-		method: "DELETE",
-		headers: await createHeaders(),
-	});
-	if (!response.ok) {
-		if (!safe) {
-			throw new Error(response.statusText);
+	try {
+		const response = await fetch(`${SERVER_API}${url}`, {
+			method: "DELETE",
+			headers: await createHeaders(),
+		});
+		if (!response.ok) {
+			if (!safe) {
+				throw new Error(response.statusText);
+			}
+			const error = await response.json();
+			return {
+				message: error.message,
+				status: error.statusCode ?? error.status,
+				data: null as null,
+			};
 		}
-		const error = await response.json();
-		return {
-			message: error.message,
-			status: error.statusCode ?? error.status,
-			data: null as null,
-		};
+		return await response.json();
 	}
-	return await response.json();
+	catch (error: any) {
+		return {
+			message: error?.message ?? "Internal server error",
+			status: error?.statusCode ?? error?.status ?? 500,
+			data: null as null,
+		}
+	}
 };

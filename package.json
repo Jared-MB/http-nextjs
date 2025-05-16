@@ -1,6 +1,6 @@
 {
 	"name": "@kristall/http",
-	"version": "1.5.1",
+	"version": "1.6.0",
 	"description": "HTTP methods for supporting NextJS Server Actions of Kristall",
 	"keywords": [],
 	"author": "",
@@ -13,10 +13,18 @@
 	},
 	"typesVersions": {
 		"*": {
-			"http": ["./dist/modules/http/index.d.ts"],
-			"interfaces": ["./dist/modules/http/interfaces/index.d.ts"],
-			"constants": ["./dist/constants/index.d.ts"],
-			"utils": ["./dist/utils/index.d.ts"]
+			"http": [
+				"./dist/modules/http/index.d.ts"
+			],
+			"interfaces": [
+				"./dist/modules/http/interfaces/index.d.ts"
+			],
+			"constants": [
+				"./dist/constants/index.d.ts"
+			],
+			"utils": [
+				"./dist/utils/index.d.ts"
+			]
 		}
 	},
 	"devDependencies": {

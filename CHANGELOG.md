@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.6.0
+
+### Minor Changes
+
+- 711520b: feat(http): add defaultAuthRequests config and authorization handling
+
 ## 1.3.0
 
 ### Minor Changes
