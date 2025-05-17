@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.7.0
+
+### Minor Changes
+
+- 078efaf: feat(http): add retry mechanism for failed HTTP requests
+
 ## 1.6.1
 
 ### Patch Changes
