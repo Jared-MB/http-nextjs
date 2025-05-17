@@ -79,7 +79,6 @@ vi.spyOn(global, "fetch").mockImplementation((url, options) => {
 
 describe('Unauthorized requests', () => {
 
-
     describe("GET", () => {
         test("Should get data successfully", async () => {
             const { data, message, status } = await GET<string>("/success");
@@ -88,6 +87,17 @@ describe('Unauthorized requests', () => {
             expect(message).toBe("Success");
             expect(status).toBe(200);
         });
+
+        test('Should get error if auth option is provided and no access token is found', async () => {
+            const { data, message, status } = await GET<string>("/success", {
+                auth: true,
+                tags: [],
+            });
+
+            expect(data).toBeNull();
+            expect(message).toBe("No access token found");
+            expect(status).toBe(500);
+        })
 
         test("Should get error data successfully", async () => {
             const { data, message, status } = await GET<string>("/error");

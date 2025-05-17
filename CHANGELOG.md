@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.6.1
+
+### Patch Changes
+
+- 6e31a80: Remove console log for session on createHeaders
+
 ## 1.6.0
 
 ### Minor Changes

@@ -22,9 +22,7 @@ const createHeaders = async (isAuth?: boolean): Promise<HeadersInit> => {
 	const __SESSION_COOKIE__ = config.sessionCookieName as string;
 	const __DEFAULT_AUTH_REQUESTS__ = config.defaultAuthRequests as boolean;
 
-
 	const access_token = await getCookie(__SESSION_COOKIE__);
-	console.log(__SESSION_COOKIE__);
 
 	if ((isAuth || __DEFAULT_AUTH_REQUESTS__) && !access_token) {
 		throw new Error("No access token found");
@@ -38,11 +36,26 @@ const createHeaders = async (isAuth?: boolean): Promise<HeadersInit> => {
 };
 
 interface FetchOptions {
-	tags: string[];
-	cache?: RequestCache;
-	revalidate?: false | 0 | number | undefined;
-	auth?: boolean
 	/**
+	 * NextJS cache tags
+	 */
+	tags: string[];
+	/**
+	 * NextJS cache strategy
+	 */
+	cache?: RequestCache;
+	/**
+	 * NextJS revalidation time
+	 */
+	revalidate?: false | 0 | number | undefined;
+	/**
+	 * If true, the request **NEEDS** to be authenticated, authorization cookie and header are required
+	 * 
+	 * You can configure the default behavior by setting `defaultAuthRequests` in your `kristall.config.ts` file,
+	 * by default it's `true` and it will throw an error if no access token is found
+	 */
+	auth?: boolean
+	/** 
 	 * @deprecated
 	 */
 	toJSON?: boolean;
