@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.7.1
+
+### Patch Changes
+
+- 8a3e9ad: refactor(http.service): add support for custom token in createHeaders
+
 ## 1.7.0
 
 ### Minor Changes

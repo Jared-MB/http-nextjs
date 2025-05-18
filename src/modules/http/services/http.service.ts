@@ -14,18 +14,22 @@ let config: KristallConfig | null = null;
 	config = await loadConfig();
 })();
 
-const createHeaders = async (isAuth?: boolean): Promise<HeadersInit> => {
-	if (!config) {
-		config = await loadConfig();
-	}
+const createHeaders = async (customToken?: string, isAuth?: boolean): Promise<HeadersInit> => {
+	let access_token = customToken;
 
-	const __SESSION_COOKIE__ = config.sessionCookieName as string;
-	const __DEFAULT_AUTH_REQUESTS__ = config.defaultAuthRequests as boolean;
+	if (!customToken) {
+		if (!config) {
+			config = await loadConfig();
+		}
 
-	const access_token = await getCookie(__SESSION_COOKIE__);
+		const __SESSION_COOKIE__ = config.sessionCookieName as string;
+		const __DEFAULT_AUTH_REQUESTS__ = config.defaultAuthRequests as boolean;
 
-	if ((isAuth || __DEFAULT_AUTH_REQUESTS__) && !access_token) {
-		throw new Error("No access token found");
+		access_token = await getCookie(__SESSION_COOKIE__);
+
+		if ((isAuth || __DEFAULT_AUTH_REQUESTS__) && !access_token) {
+			throw new Error("No access token found");
+		}
 	}
 
 	return {
@@ -84,6 +88,13 @@ interface FetchOptions {
 		 */
 		retryableStatusCodes?: number[];
 	};
+	/**
+	 * Custom token to use instead of the one in the cookie.
+	 * 
+	 * **NOT RECOMMENDED**, use it for specific cases only, its better to use the default auth cookie to automatically authenticate
+	 * and ensure all requests are authenticated with the same token
+	 */
+	customToken?: string;
 	/** 
 	 * @deprecated
 	 */
@@ -212,7 +223,7 @@ export const GET = async <T>(
 
 	const fetchFn = async (): Promise<ServerResponse<T>> => {
 		try {
-			const headers = await createHeaders(options?.auth);
+			const headers = await createHeaders(options?.customToken, options?.auth);
 
 			const response = await fetch(`${SERVER_API}${url}`, {
 				method: "GET",
