@@ -273,11 +273,12 @@ export const GET = async <T>(
 export const POST = async <T, R = unknown>(
 	url: Url,
 	body: T,
+	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
 	try {
 		const response = await fetch(`${SERVER_API}${url}`, {
 			method: "POST",
-			headers: await createHeaders(),
+			headers: await createHeaders(options?.customToken, options?.auth),
 			body: JSON.stringify(body),
 		});
 		if (!body || Object.keys(body).length === 0) {
