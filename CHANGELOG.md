@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.7.2
+
+### Patch Changes
+
+- 2574b31: feat(http): add options parameter to POST request for custom headers
+
 ## 1.7.1
 
 ### Patch Changes
