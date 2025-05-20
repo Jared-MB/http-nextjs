@@ -1,5 +1,11 @@
 # @kristall/http
 
+## 1.7.3
+
+### Patch Changes
+
+- 49ccbfd: refactor(http): simplify and improve logic in createHeaders function
+
 ## 1.7.2
 
 ### Patch Changes

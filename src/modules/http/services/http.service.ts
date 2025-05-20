@@ -15,26 +15,35 @@ let config: KristallConfig | null = null;
 })();
 
 const createHeaders = async (customToken?: string, isAuth?: boolean): Promise<HeadersInit> => {
-	let access_token = customToken;
+	if (!config) {
+		config = await loadConfig();
+	}
 
-	if (!customToken) {
-		if (!config) {
-			config = await loadConfig();
-		}
+	const needAuth = isAuth ?? config.defaultAuthRequests as boolean;
 
-		const __SESSION_COOKIE__ = config.sessionCookieName as string;
-		const __DEFAULT_AUTH_REQUESTS__ = config.defaultAuthRequests as boolean;
+	if (!needAuth) {
+		return {
+			"Content-Type": "application/json",
+		};
+	}
 
-		access_token = await getCookie(__SESSION_COOKIE__);
+	if (customToken) {
+		return {
+			Authorization: `Bearer ${customToken}`,
+			Cookie: `session=${customToken}`,
+			"Content-Type": "application/json",
+		};
+	}
 
-		if ((isAuth || __DEFAULT_AUTH_REQUESTS__) && !access_token) {
-			throw new Error("No access token found");
-		}
+	const accessToken = await getCookie(config.sessionCookieName as string);
+
+	if (!accessToken) {
+		throw new Error("No access token found");
 	}
 
 	return {
-		Authorization: `Bearer ${access_token}`,
-		Cookie: `session=${access_token}`,
+		Authorization: `Bearer ${accessToken}`,
+		Cookie: `session=${accessToken}`,
 		"Content-Type": "application/json",
 	};
 };
