@@ -41,7 +41,8 @@
 		"build": "tsc",
 		"dev": "tsc --watch",
 		"test": "vitest",
-		"coverage": "vitest run --coverage"
+		"coverage": "vitest run --coverage",
+		"dev:docs": "pnpm --filter @kristall/http-docs dev"
 	},
 	"dependencies": {
 		"cosmiconfig": "9.0.0",

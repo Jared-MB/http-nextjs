@@ -1,0 +1,449 @@
+---
+title: Methods
+description: The different methods that @kristall/http supports.
+---
+
+import { Code, Aside } from '@astrojs/starlight/components';
+
+The HTTP client provides the following methods:
+
+- GET
+- POST
+- PUT
+- PATCH
+- DELETE
+
+### GET
+
+```ts
+import { GET } from "@kristall/http";
+```
+
+Get method is used to fetch some data to the backend.
+
+```ts
+const GET = <T>(url: `/${string}`, options?: FetchOptions) => Promise<ServerResponse<T>>;
+```
+
+#### Parameters
+
+- url: URL to fetch
+- options: [FetchOptions](#fetchoptions)
+    - **tags**: Tag array to help NextJS cache
+    - **cache**: NextJS cache value **(default: no-store)** 
+
+#### Returns
+
+GET return a [ServerResponse](#serverresponse) promise.
+
+#### Usage
+
+export const GET = `
+import { GET } from "@kristall/http";
+
+import type { Product } from "../interfaces";
+import { PRODUCTS_TAGS } from "../constants";
+
+export const getProducts = async (): Promise<Product[] | null> => {
+    const { data } = await GET<Product[] | null>("/products", {
+        tags: [PRODUCTS_TAGS.GET],
+        cache: "force-cache",
+    });
+    return data;
+};
+`
+
+<Code code={GET} lang='ts' title='products/get.ts' />
+
+#### Caching
+
+To properly cache the GET request, you need to pass the **tags** option.
+
+```ts
+const response = GET<Product[]>('/products', {
+    tags: [PRODUCTS_TAGS.GET]
+});
+```
+
+<Aside type='caution'>
+    Since NextJS 15, cache is set by default to **no-store**. To effectively cache the request, you need to pass the **cache** option with the value **force-cache**.
+</Aside>
+
+So the request will be cached by NextJS and can be revalidated after a mutation.
+
+```ts
+await uploadProduct(product);
+revalidateTag(PRODUCTS_TAGS.GET);
+```
+
+<Aside type="caution">
+If the tags array is empty, the request will not be cached. And will show a warning in the development console.
+```sh
+⚠️ No tags provided for GET request: /products
+```
+
+</Aside>
+
+By default, the GET method uses the NextJS cache value **no-store**. 
+You can change it by passing the **cache** option.
+
+**RECOMMENDED**
+
+```ts
+const response = GET<Product[]>('/products', {
+    cache: 'force-cache'
+});
+```
+
+or the revalidate option.
+
+```ts
+const response = GET<Product[]>('/products', {
+    revalidate: 3600
+});
+```
+
+<Aside>
+**Kristall** was built with **cache** set as **force-cache** before NextJS 15. But after some troubleshooting with cache, we decided to change it to **no-store** by default according to the NextJS documentation.
+</Aside>
+
+#### Typescript
+
+It receives one type parameter, the type of the response data.
+
+```ts
+const response = await GET<Product[]>('/products');
+// Typescript will infer the type of the response data. 
+// In this case, it's an array of products.
+const { data } = response;
+```
+
+#### Errors
+
+If the request fails, the method will return a [ServerResponse](#serverresponse) with the error message and the data will be **null**.
+
+GET method will log on develop console if the request fails.
+```sh
+❌ Error fetching data at:  /products
+```
+
+### POST
+
+```ts
+import { POST } from "@kristall/http";
+```
+
+POST method is used to send data to the backend.
+
+```ts
+const POST = <T, R = unknown>(url: `/${string}`, body: T) => Promise<ServerResponse<R>>;
+```
+
+#### Parameters
+
+- url: URL to fetch
+- body: Data to send
+
+
+#### Returns
+
+POST return a [ServerResponse](#serverresponse) promise.
+
+#### Usage
+
+export const POST = `
+import { POST } from "@kristall/http";
+
+import type { Product } from "../interfaces";
+import { PRODUCTS_TAGS } from "../constants";
+
+export const uploadProduct = async (_prevState: unknown, payload: FormData): Promise<void> => {
+    const data = Object.fromEntries(payload.entries());
+    
+    await POST<Product, Product>("/products", data);
+    revalidateTag(PRODUCTS_TAGS.GET);
+
+    return;
+};
+`
+
+<Code code={POST} lang='ts' title='products/upload.ts' />
+
+#### Typescript
+
+It receives two type parameters, the first one is type **payload** data and the second one is the type of the **response** data.
+
+export const TYPESCRIPT_POST = `
+const data = {...} as Product
+// ✅ we tell typescript that the payload is a Product and its all fine!
+const productResponse = await POST<Product, Product | null>('/products', data);
+
+// ❌ this will throw an error typing since the payload 
+// is not the same type as we declared in the POST method
+const orderResponse = await POST<Order>('/orders', data);
+`
+
+<Code code={TYPESCRIPT_POST} lang='ts' mark={['Order']} />
+
+#### Errors
+
+If the request fails, the method will return a [ServerResponse](#serverresponse) with the error message and the data will be **null**.
+
+POST method will log on develop console if the request fails.
+```sh
+❌ Error pushing data at: /products
+```
+
+If no payload is provided to the POST method, the request will continue but a
+warning will be logged on develop console.
+
+```sh
+⚠️ No data provided for POST request: /products
+```
+
+### PUT/PATCH
+
+```ts
+import { PUT, PATCH } from "@kristall/http";
+```
+
+PUT/PATCH method is used to update data to the backend. Both methods use the same API, also like POST.
+
+```ts
+const PUT = <T, R = unknown>(url: `/${string}`, body: T) => Promise<ServerResponse<R>>;
+const PATCH = <T, R = unknown>(url: `/${string}`, body: T) => Promise<ServerResponse<R>>;
+```
+
+#### Parameters
+
+- url: URL to fetch
+- body: Data to send
+
+
+#### Returns
+
+PUT/PATCH return a [ServerResponse](#serverresponse) promise.
+
+#### Usage
+
+export const PUT = `
+import { PUT } from "@kristall/http";
+
+import type { Product } from "../interfaces";
+import { PRODUCTS_TAGS } from "../constants";
+
+export const updateProduct = async (_prevState: unknown, payload: FormData): Promise<void> => {
+    const data = Object.fromEntries(payload.entries());
+    
+    await PUT<Product, Product>("/products", data);
+    revalidateTag(PRODUCTS_TAGS.GET);
+
+    return;
+};
+`
+
+<Code code={PUT} lang='ts' title='products/updateProduct.ts' />
+
+#### Typescript
+
+It receives two type parameters, the first one is type **payload** data and the second one is the type of the **response** data.
+
+export const TYPESCRIPT_PUT = `
+const data = {...} as Product
+// ✅ we tell typescript that the payload is a Product and its all fine!
+const productResponse = await PUT<Product, Product | null>('/products', data);
+
+// ❌ this will throw an error typing since the payload 
+// is not the same type as we declared in the PUT/PATCH method
+const orderResponse = await PATCH<Order>('/orders', data);
+`
+
+<Code code={TYPESCRIPT_PUT} lang='ts' mark={['Order']} />
+
+#### Errors
+
+If the request fails, the method will return a [ServerResponse](#serverresponse) with the error message and the data will be **null**.
+
+PUT/PATCH method will log on develop console if the request fails.
+```sh
+❌ Error updating data at: /products
+```
+
+If no payload is provided to the PUT/PATCH method, the request will continue but a
+warning will be logged on develop console.
+
+```sh
+⚠️ No data provided for PUT request: /products
+```
+
+### DELETE
+
+```ts
+import { DELETE } from "@kristall/http";
+```
+
+DELETE method is used to delete data to the backend.
+
+```ts
+const DELETE = (url: `/${string}`) => Promise<ServerResponse<null>>;
+```
+
+#### Parameters
+
+- url: URL to hit
+
+
+#### Returns
+
+DELETE **ALWAYS** return a **null** [ServerResponse](#serverresponse) promise.
+
+#### Usage
+
+export const DELETE = `
+import { DELETE } from "@kristall/http";
+
+import { PRODUCTS_TAGS } from "../constants";
+
+export const deleteProduct = async (_prevState: unknown, payload: FormData): Promise<void> => {
+    const { _id } = Object.fromEntries(payload.entries());
+
+    await DELETE(\`/products?id=\${_id}\`);
+    revalidateTag(PRODUCTS_TAGS.GET);
+
+    return;
+};
+`
+
+<Code code={DELETE} lang='ts' title='products/deleteProduct.ts' />
+
+#### Typescript
+
+Its a simple method, so it doesn't receive any type parameters and the response data is always **null**.
+
+export const TYPESCRIPT_DELETE = `
+const productResponse = await DELETE(\`/products?id=\${_id}\`);
+`
+
+<Code code={TYPESCRIPT_DELETE} lang='ts' mark={['Order']} />
+
+## Error handlings
+
+All the HTTP methods are **error safe**, so if the request fails, the method will return a [ServerResponse](#serverresponse) with the error message and the data will be **null**.
+
+```ts
+// Failing request
+const response = await GET<Product[] | null>('/productss');
+// data will be null
+const { data } = response
+```
+
+<Aside>
+    The package takes as an error every response with status code between **400** and **599**.
+</Aside>
+
+### Troubleshooting
+
+By default, HTTP methods not consider the data response as **null**, but data can be **null** if the request fails, even if the type was set as not nullable.
+This is because an error of type definition that wasn't considered at the time the package was develop. And fixing it would be a breaking change for almost all the apps and requests.
+
+So, we recommend to set also a nullable type definition for the data response property to avoid null errors that will break the app.
+
+Use it like this:
+```ts
+// ✅ we tell typescript that data can be null and we can handle the error
+const { data } = await GET<Product[] | null>('/products');
+```
+instead of:
+```ts
+// ⚠️ data will be null if the request fails and its not handled
+const { data } = await GET<Product[]>('/products');
+```
+
+We are trying to figure out how tell typescript that the data can be null without breaking the app and without telling it explicitly.
+
+## Typescript
+
+### ServerResponse
+
+All the HTTP methods response with an object with the following properties:
+
+```ts
+export interface ServerResponse<T> {
+    message: string;
+    data: T;
+    status: number;
+}
+```
+
+### FetchOptions
+
+FetchOptions is an object that contains the options for the HTTP [GET](#get) method.
+
+```ts
+interface FetchOptions {
+    tags: string[];
+    cache?: RequestCache;
+    revalidate?: false | 0 | number | undefined;
+    /**
+    * @deprecated
+    */
+    toJSON?: boolean;
+    /**
+    * @deprecated
+    */
+    safe?: boolean;
+}
+```
+
+### Pagination
+
+Pagination is an object that contains the pagination data for the [GET](#get) method. Its usage depends on the request.
+Some request like `products` or `orders` will return a [Pagination](#pagination) object.
+
+```ts
+export interface Pagination<T> {
+	entities: T[];
+	next: number | null;
+	previous: number | null;
+	page: number;
+	hasMore: boolean;
+	totalPages: number;
+}
+```
+
+Pagination can be used within the [ServerResponse](#serverresponse) object.
+
+```ts
+const response = await GET<Pagination<Product> | null>('/products');
+
+const { data } = response;
+
+if (!data) {
+    return
+}
+const { entities, page, totalPages, hasMore, next, previous } = data;
+```
+
+The entity property will be automatically typed as an array because the nature of the request.
+
+```ts
+// ✅ typed correctly
+const response = await GET<Pagination<Product>>('/products');
+
+const { data } = response;
+
+// products will be automatically typed as an array
+const products = data?.entities.map(product => product.name);
+```
+
+export const INCORRECT_TYPE = `
+// ❌ not typed correctly
+const response = await GET<Pagination<Product[]>>('/products');
+
+const { data } = response
+
+// will be an error typing
+const products = data?.entities.map(product => product.name);
+`
+
+<Code code={INCORRECT_TYPE} lang='ts' mark={['[]', 'product.name']} />

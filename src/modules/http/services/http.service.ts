@@ -62,10 +62,11 @@ interface FetchOptions {
 	 */
 	revalidate?: false | 0 | number | undefined;
 	/**
-	 * If true, the request **NEEDS** to be authenticated, authorization cookie and header are required
+	 * If true, the request **NEEDS** to be authenticated, **AUTHORIZATION COOKIE AND HEADER ARE REQUIRED**.
 	 * 
 	 * You can configure the default behavior by setting `defaultAuthRequests` in your `kristall.config.ts` file,
-	 * by default it's `true` and it will throw an error if no access token is found
+	 * by default it's `true` and it **WILL THROW AN ERROR IF NO ACCESS TOKEN IS FOUND**.
+	 * 
 	 */
 	auth?: boolean;
 	/**
@@ -105,11 +106,16 @@ interface FetchOptions {
 	 */
 	customToken?: string;
 	/** 
-	 * @deprecated
+	 * @deprecated 
+	 * 
+	 * This option is deprecated, its not longer necessary since responses are parsed automatically as JSON or TEXT.
 	 */
 	toJSON?: boolean;
 	/**
-	 * @deprecated
+	 * @deprecated 
+	 * 
+	 * This option is deprecated, its not longer necessary since all the HTTP requests are
+	 * try/catch'ed to maintain the same behavior and response on every request.	
 	 */
 	safe?: boolean;
 }

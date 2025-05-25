@@ -1,0 +1,72 @@
+---
+title: Getting started
+description: A quick guide to get started with @kristall/http.
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components';
+
+**@kristall/http** is a package for Kristall that provides a simple HTTP client.
+It's built on top of **fetch** API based on NextJS [**server actions**](https://nextjs.org/docs/app/getting-started/fetching-data#with-the-fetch-api).
+
+### Why its different from using raw fetch API?
+
+**@kristall/http** is a wrapper for the fetch API, so it handles more things than just the requests, E.g:
+
+- Type safety.
+    - Add consistent types for every response.
+- Automatically: 
+    - Adds the **Authorization/Cookie** header with the actual session cookie.
+    - Adds the **Content-Type** header with the **application/json** value.
+    - Converts the request body into a string before sending it.
+- Handles error responses.
+- Helps NextJS cache.
+    - With the **tags** and **cache** options, we can improve user experience and reduce the number of requests, taking control of the app's cache.
+
+
+## Installation
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install @kristall/http
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add @kristall/http
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn add @kristall/http
+    ```
+  </TabItem>
+</Tabs>
+
+Then add the following environment variables to your `.env` file:
+
+```bash
+# The base URL of your API
+SERVER_API=http://localhost:3000
+```
+
+## Basic usage
+
+export const GET = `
+"use server";
+
+import { GET } from "@kristall/http";
+
+import type { Product } from "../interfaces";
+import { PRODUCTS_TAGS } from "../constants";
+
+export const getProducts = async (): Promise<Product[] | null> => {
+    const { data } = await GET<Product[] | null>("/products", {
+        tags: [PRODUCTS_TAGS.GET],
+        cache: "force-cache",
+    });
+    return data;
+};
+`
+
+<Code code={GET} lang='ts' title='products/get.ts' />
