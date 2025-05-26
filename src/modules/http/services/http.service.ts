@@ -350,7 +350,7 @@ export const POST = async <T, R = unknown>(
 export const PUT = async <T, R = unknown>(
 	url: Url,
 	body: T,
-	options: Pick<FetchOptions, "auth" | "customToken">,
+	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
