@@ -7,7 +7,8 @@ const __MODULE_NAME__ = "kristall";
 
 export const __DEFAULT_CONFIG__: KristallConfig = {
 	sessionCookieName: "session",
-	defaultAuthRequests: true
+	defaultAuthRequests: true,
+	serverUrl: process.env.SERVER_API,
 };
 
 export async function loadConfig(): Promise<KristallConfig> {

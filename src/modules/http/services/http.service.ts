@@ -2,8 +2,6 @@
 
 type Url = `/${string}`;
 
-import { SERVER_API } from "@kristall/http/constants";
-
 import { getCookie, isDev, loadConfig } from "@kristall/http/utils";
 
 import type { KristallConfig, ServerResponse } from "../interfaces";
@@ -14,12 +12,15 @@ let config: KristallConfig | null = null;
 	config = await loadConfig();
 })();
 
-const createHeaders = async (customToken?: string, isAuth?: boolean): Promise<HeadersInit> => {
+const createHeaders = async (
+	customToken?: string,
+	isAuth?: boolean,
+): Promise<HeadersInit> => {
 	if (!config) {
 		config = await loadConfig();
 	}
 
-	const needAuth = isAuth ?? config.defaultAuthRequests as boolean;
+	const needAuth = isAuth ?? (config.defaultAuthRequests as boolean);
 
 	if (!needAuth) {
 		return {
@@ -63,10 +64,10 @@ interface FetchOptions {
 	revalidate?: false | 0 | number | undefined;
 	/**
 	 * If true, the request **NEEDS** to be authenticated, **AUTHORIZATION COOKIE AND HEADER ARE REQUIRED**.
-	 * 
+	 *
 	 * You can configure the default behavior by setting `defaultAuthRequests` in your `kristall.config.ts` file,
 	 * by default it's `true` and it **WILL THROW AN ERROR IF NO ACCESS TOKEN IS FOUND**.
-	 * 
+	 *
 	 */
 	auth?: boolean;
 	/**
@@ -100,22 +101,22 @@ interface FetchOptions {
 	};
 	/**
 	 * Custom token to use instead of the one in the cookie.
-	 * 
+	 *
 	 * **NOT RECOMMENDED**, use it for specific cases only, its better to use the default auth cookie to automatically authenticate
 	 * and ensure all requests are authenticated with the same token
 	 */
 	customToken?: string;
-	/** 
-	 * @deprecated 
-	 * 
+	/**
+	 * @deprecated
+	 *
 	 * This option is deprecated, its not longer necessary since responses are parsed automatically as JSON or TEXT.
 	 */
 	toJSON?: boolean;
 	/**
-	 * @deprecated 
-	 * 
+	 * @deprecated
+	 *
 	 * This option is deprecated, its not longer necessary since all the HTTP requests are
-	 * try/catch'ed to maintain the same behavior and response on every request.	
+	 * try/catch'ed to maintain the same behavior and response on every request.
 	 */
 	safe?: boolean;
 }
@@ -125,7 +126,7 @@ interface FetchOptions {
  */
 const shouldRetry = (
 	statusCode: number | undefined,
-	retryableStatusCodes: number[] = [408, 429, 500, 502, 503, 504]
+	retryableStatusCodes: number[] = [408, 429, 500, 502, 503, 504],
 ): boolean => {
 	if (!statusCode) return true;
 	return retryableStatusCodes.includes(statusCode);
@@ -134,11 +135,11 @@ const shouldRetry = (
 /**
  * Calculate delay with exponential backoff
  */
-export const calculateDelay = (
+const calculateDelay = (
 	attempt: number,
 	initialDelay = 1000,
 	backoffFactor = 2,
-	maxDelay = 30000
+	maxDelay = 30000,
 ): number => {
 	const delay = initialDelay * backoffFactor ** attempt;
 	return Math.min(delay, maxDelay);
@@ -149,15 +150,15 @@ export const calculateDelay = (
  */
 const retryFetch = async <T>(
 	fetchFn: () => Promise<ServerResponse<T>>,
-	retryConfig: NonNullable<FetchOptions['retry']>,
-	url: string
+	retryConfig: NonNullable<FetchOptions["retry"]>,
+	url: string,
 ): Promise<ServerResponse<T>> => {
 	const {
 		attempts,
 		initialDelay = 1000,
 		backoffFactor = 2,
 		maxDelay = 30000,
-		retryableStatusCodes = [408, 429, 500, 502, 503, 504]
+		retryableStatusCodes = [408, 429, 500, 502, 503, 504],
 	} = retryConfig;
 
 	let lastResponse: ServerResponse<T> | null = null;
@@ -173,31 +174,55 @@ const retryFetch = async <T>(
 			lastResponse = response;
 
 			if (!shouldRetry(response.status, retryableStatusCodes)) {
-				isDev && console.log(`⚠️ Request failed with non-retriable status ${response.status}, not retrying: ${url}`);
+				isDev &&
+					console.log(
+						`⚠️ Request failed with non-retriable status ${response.status}, not retrying: ${url}`,
+					);
 				return response;
 			}
 
 			if (attempt < attempts - 1) {
-				const delay = calculateDelay(attempt, initialDelay, backoffFactor, maxDelay);
-				isDev && console.log(`🔄 Retrying request (${attempt + 1}/${attempts}) after ${delay}ms: ${url}`);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				const delay = calculateDelay(
+					attempt,
+					initialDelay,
+					backoffFactor,
+					maxDelay,
+				);
+				isDev &&
+					console.log(
+						`🔄 Retrying request (${
+							attempt + 1
+						}/${attempts}) after ${delay}ms: ${url}`,
+					);
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		} catch (error: any) {
 			lastResponse = {
 				message: error?.message ?? "Internal server error",
 				status: error?.statusCode ?? error?.status ?? 500,
-				data: null as T
+				data: null as T,
 			};
 
 			if (attempt < attempts - 1) {
-				const delay = calculateDelay(attempt, initialDelay, backoffFactor, maxDelay);
-				isDev && console.log(`🔄 Retrying request after error (${attempt + 1}/${attempts}) after ${delay}ms: ${url}`);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				const delay = calculateDelay(
+					attempt,
+					initialDelay,
+					backoffFactor,
+					maxDelay,
+				);
+				isDev &&
+					console.log(
+						`🔄 Retrying request after error (${
+							attempt + 1
+						}/${attempts}) after ${delay}ms: ${url}`,
+					);
+				await new Promise((resolve) => setTimeout(resolve, delay));
 			}
 		}
 	}
 
-	isDev && console.error(`❌ Request failed after ${attempts} attempts: ${url}`);
+	isDev &&
+		console.error(`❌ Request failed after ${attempts} attempts: ${url}`);
 	return lastResponse as ServerResponse<T>;
 };
 
@@ -240,7 +265,7 @@ export const GET = async <T>(
 		try {
 			const headers = await createHeaders(options?.customToken, options?.auth);
 
-			const response = await fetch(`${SERVER_API}${url}`, {
+			const response = await fetch(`${config?.serverUrl}${url}`, {
 				method: "GET",
 				headers,
 				next: {
@@ -291,7 +316,7 @@ export const POST = async <T, R = unknown>(
 	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
 	try {
-		const response = await fetch(`${SERVER_API}${url}`, {
+		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "POST",
 			headers: await createHeaders(options?.customToken, options?.auth),
 			body: JSON.stringify(body),
@@ -325,18 +350,18 @@ export const POST = async <T, R = unknown>(
 export const PUT = async <T, R = unknown>(
 	url: Url,
 	body: T,
-	{ safe = true } = {
+	options: Pick<FetchOptions, "auth" | "customToken"> & { safe: boolean } = {
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
 	try {
-		const response = await fetch(`${SERVER_API}${url}`, {
+		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "PUT",
-			headers: await createHeaders(),
+			headers: await createHeaders(options?.customToken, options?.auth),
 			body: JSON.stringify(body),
 		});
 		if (!response.ok) {
-			if (!safe) throw new Error(response.statusText);
+			if (!options.safe) throw new Error(response.statusText);
 			const error = await response.json();
 			return {
 				message: error.message,
@@ -349,13 +374,12 @@ export const PUT = async <T, R = unknown>(
 		} catch (error) {
 			return response.text() as any;
 		}
-	}
-	catch (error: any) {
+	} catch (error: any) {
 		return {
 			message: error?.message ?? "Internal server error",
 			status: error?.statusCode ?? error?.status ?? 500,
 			data: null as R,
-		}
+		};
 	}
 };
 
@@ -367,7 +391,7 @@ export const PATCH = async <T, R = unknown>(
 	},
 ): Promise<ServerResponse<R>> => {
 	try {
-		const response = await fetch(`${SERVER_API}${url}`, {
+		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "PATCH",
 			headers: await createHeaders(),
 			body: JSON.stringify(body),
@@ -386,13 +410,12 @@ export const PATCH = async <T, R = unknown>(
 		} catch (error) {
 			return response.text() as any;
 		}
-	}
-	catch (error: any) {
+	} catch (error: any) {
 		return {
 			message: error?.message ?? "Internal server error",
 			status: error?.statusCode ?? error?.status ?? 500,
 			data: null as R,
-		}
+		};
 	}
 };
 
@@ -403,7 +426,7 @@ export const DELETE = async (
 	},
 ): Promise<ServerResponse<null>> => {
 	try {
-		const response = await fetch(`${SERVER_API}${url}`, {
+		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "DELETE",
 			headers: await createHeaders(),
 		});
@@ -419,12 +442,11 @@ export const DELETE = async (
 			};
 		}
 		return await response.json();
-	}
-	catch (error: any) {
+	} catch (error: any) {
 		return {
 			message: error?.message ?? "Internal server error",
 			status: error?.statusCode ?? error?.status ?? 500,
 			data: null as null,
-		}
+		};
 	}
 };

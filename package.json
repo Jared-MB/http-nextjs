@@ -1,35 +1,36 @@
 {
 	"name": "@kristall/http",
-	"version": "1.7.3",
+	"version": "1.7.4",
 	"description": "HTTP methods for supporting NextJS Server Actions of Kristall",
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
+	"type": "module",
+	"main": "./dist/cjs/src/modules/http/index.js",
+	"module": "./dist/esm/src/modules/http/index.js",
+	"types": "./dist/src/modules/http/index.d.ts",
 	"exports": {
-		".": "./dist/modules/http/index.js",
-		"./constants": "./dist/constants/index.js",
-		"./utils": "./dist/utils/index.js",
-		"./interfaces": "./dist/modules/http/interfaces/index.d.ts"
-	},
-	"typesVersions": {
-		"*": {
-			"http": [
-				"./dist/modules/http/index.d.ts"
-			],
-			"interfaces": [
-				"./dist/modules/http/interfaces/index.d.ts"
-			],
-			"constants": [
-				"./dist/constants/index.d.ts"
-			],
-			"utils": [
-				"./dist/utils/index.d.ts"
-			]
-		}
+		".": {
+			"import": "./dist/esm/src/modules/http/index.js",
+			"require": "./dist/cjs/src/modules/http/index.js",
+			"types": "./dist/src/modules/http/index.d.ts"
+		},
+		"./constants": {
+			"import": "./dist/esm/src/constants/index.js",
+			"require": "./dist/cjs/src/constants/index.js",
+			"types": "./dist/src/constants/index.d.ts"
+		},
+		"./utils": {
+			"import": "./dist/esm/src/utils/index.js",
+			"require": "./dist/cjs/src/utils/index.js",
+			"types": "./dist/src/utils/index.d.ts"
+		},
+		"./interfaces": "./dist/src/modules/http/interfaces/index.d.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.3",
 		"@types/node": "20.12.7",
+		"rimraf": "6.0.1",
 		"typescript": "5.4.5",
 		"vite-tsconfig-paths": "^4.3.2",
 		"vitest": "^2.1.4"
@@ -38,11 +39,17 @@
 		"next": "^15.1.0"
 	},
 	"scripts": {
-		"build": "tsc",
-		"dev": "tsc --watch",
+		"build": "pnpm run clean && pnpm run build:cjs && pnpm run build:esm && pnpm run build:types",
+		"build:cjs": "tsc -p tsconfig.cjs.json",
+		"build:esm": "tsc -p tsconfig.esm.json",
+		"build:types": "tsc -p tsconfig.json",
+		"clean": "rmdir /s /q dist 2>nul || echo \"dist folder not found or already clean\"",
+		"dev": "pnpm run clean && pnpm run --parallel \"/^dev:/\"",
+		"dev:cjs": "tsc -p tsconfig.cjs.json --watch",
+		"dev:esm": "tsc -p tsconfig.esm.json --watch",
+		"dev:types": "tsc -p tsconfig.json --watch",
 		"test": "vitest",
-		"coverage": "vitest run --coverage",
-		"dev:docs": "pnpm --filter @kristall/http-docs dev"
+		"coverage": "vitest run --coverage"
 	},
 	"dependencies": {
 		"cosmiconfig": "9.0.0",
