@@ -4,7 +4,7 @@ type Url = `/${string}`;
 
 import { getCookie, isDev, loadConfig } from "@kristall/http/utils";
 
-import type { KristallConfig, ServerResponse } from "@kristall/http/interfaces";
+import type { KristallConfig, ServerResponse } from "../../../interfaces";
 
 let config: KristallConfig | null = null;
 

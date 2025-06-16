@@ -18,7 +18,8 @@
 			"@/*": ["./src/*"],
 			"@kristall/http/*": ["./src/modules/http/*"],
 			"@kristall/http/constants": ["./src/constants/index.ts"],
-			"@kristall/http/utils": ["./src/utils/index.ts"]
+			"@kristall/http/utils": ["./src/utils/index.ts"],
+			"@kristall/http/interfaces": ["./src/interfaces.ts"]
 		},
 		"outDir": "./dist",
 		"declaration": true,
