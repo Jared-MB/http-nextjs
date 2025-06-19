@@ -1,7 +1,7 @@
 import { cosmiconfig } from "cosmiconfig";
 import { TypeScriptLoader } from "cosmiconfig-typescript-loader";
 
-import type { KristallConfig } from "../interfaces";
+import type { KristallConfig } from "../modules/http/interfaces";
 
 const __MODULE_NAME__ = "kristall";
 

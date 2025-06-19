@@ -25,7 +25,7 @@
 			"require": "./dist/cjs/src/utils/index.js",
 			"types": "./dist/src/utils/index.d.ts"
 		},
-		"./interfaces": "./dist/src/interfaces.d.ts"
+		"./interfaces": "./dist/src/modules/http/interfaces/http.interface.d.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.6.3",

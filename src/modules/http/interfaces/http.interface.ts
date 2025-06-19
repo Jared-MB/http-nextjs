@@ -1,3 +1,9 @@
+export interface KristallConfig {
+	sessionCookieName?: string;
+	defaultAuthRequests?: boolean;
+	serverUrl?: string;
+}
+
 export interface ServerResponse<T> {
 	message: string;
 	data: T;
