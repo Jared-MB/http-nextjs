@@ -247,7 +247,8 @@ export const GET = async <T>(
 	},
 ): Promise<ServerResponse<T>> => {
 	logger.warn(
-		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead at ",
+		url,
 	);
 	const { tags, toJSON } = options;
 
@@ -324,7 +325,8 @@ export const POST = async <T, R = unknown>(
 	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
 	logger.warn(
-		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead at ",
+		url,
 	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
@@ -367,7 +369,8 @@ export const PUT = async <T, R = unknown>(
 	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
 	logger.warn(
-		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead at ",
+		url,
 	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
@@ -408,7 +411,8 @@ export const PATCH = async <T, R = unknown>(
 	},
 ): Promise<ServerResponse<R>> => {
 	logger.warn(
-		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead at ",
+		url,
 	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
@@ -449,7 +453,8 @@ export const DELETE = async (
 	},
 ): Promise<ServerResponse<null>> => {
 	logger.warn(
-		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead at ",
+		url,
 	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
