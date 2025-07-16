@@ -234,6 +234,7 @@ const retryFetch = async <T>(
  *
  * @param url URL to fetch
  * @param options FetchOptions
+ * @deprecated Use \@kristall/nexum instead
  */
 export const GET = async <T>(
 	url: Url,
@@ -314,6 +315,9 @@ export const GET = async <T>(
 	return fetchFn();
 };
 
+/**
+ * @deprecated Use \@kristall/nexum instead
+ */
 export const POST = async <T, R = unknown>(
 	url: Url,
 	body: T,
@@ -354,6 +358,9 @@ export const POST = async <T, R = unknown>(
 	}
 };
 
+/**
+ * @deprecated Use \@kristall/nexum instead
+ */
 export const PUT = async <T, R = unknown>(
 	url: Url,
 	body: T,
@@ -390,6 +397,9 @@ export const PUT = async <T, R = unknown>(
 	}
 };
 
+/**
+ * @deprecated Use \@kristall/nexum instead
+ */
 export const PATCH = async <T, R = unknown>(
 	url: Url,
 	body: T,
@@ -429,6 +439,9 @@ export const PATCH = async <T, R = unknown>(
 	}
 };
 
+/**
+ * @deprecated Use \@kristall/nexum instead
+ */
 export const DELETE = async (
 	url: Url,
 	{ safe = true } = {
