@@ -4,6 +4,7 @@ type Url = `/${string}`;
 
 import { getCookie, isDev, loadConfig } from "@kristall/http/utils";
 
+import { logger } from "@kristall/logger";
 import type { KristallConfig, ServerResponse } from "../interfaces";
 
 let config: KristallConfig | null = null;
@@ -244,6 +245,9 @@ export const GET = async <T>(
 		revalidate: undefined,
 	},
 ): Promise<ServerResponse<T>> => {
+	logger.warn(
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+	);
 	const { tags, toJSON } = options;
 
 	if (isDev) {
@@ -315,6 +319,9 @@ export const POST = async <T, R = unknown>(
 	body: T,
 	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
+	logger.warn(
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "POST",
@@ -352,6 +359,9 @@ export const PUT = async <T, R = unknown>(
 	body: T,
 	options?: Pick<FetchOptions, "auth" | "customToken">,
 ): Promise<ServerResponse<R>> => {
+	logger.warn(
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "PUT",
@@ -387,6 +397,9 @@ export const PATCH = async <T, R = unknown>(
 		safe: true,
 	},
 ): Promise<ServerResponse<R>> => {
+	logger.warn(
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "PATCH",
@@ -422,6 +435,9 @@ export const DELETE = async (
 		safe: true,
 	},
 ): Promise<ServerResponse<null>> => {
+	logger.warn(
+		"⚠️ @kristall/http will be deprecated, use @kristall/nexum instead",
+	);
 	try {
 		const response = await fetch(`${config?.serverUrl}${url}`, {
 			method: "DELETE",
